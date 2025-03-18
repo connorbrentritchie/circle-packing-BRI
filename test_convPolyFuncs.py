@@ -2,6 +2,7 @@ import convPolyFuncs as cpf
 import packingAlgs as pa
 import drawFuncsV2 as df
 import shapely as sh
+import unittest
 
 
 def main():    
@@ -17,8 +18,11 @@ def main():
     df.pshow()
 
 
-
+class Testing(unittest.TestCase):
+    def test_sum(self):
+        self.assertEqual(3, 2 + 1)
 
 
 if __name__ == "__main__":
+    unittest.main()
     main()
