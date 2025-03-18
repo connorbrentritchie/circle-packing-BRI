@@ -6,7 +6,6 @@ import random
 import shapely as sh
 from shapely import Point, LineString, Polygon
 import matplotlib.pyplot as plt
-import time
 
 def main():
     circ = Circle(Point(0,0),5)
@@ -139,7 +138,7 @@ def isValidTangent(tanSeg, circleList):
         return False
 
 
-
+# allValidTangents :: [Circle] -> Bool -> [(InfLine, LineString)]
 def allValidTangents(circleList, testDraw = False): #takes a list of circles and returns all of the valid exterior tangents
     #setup
     cHull = centerHull(circleList)
@@ -304,6 +303,10 @@ def convPoly(circleList):
 
         except: #sometimes breaks as described above, just does the correct alg with the first two circles in the list
             return convPoly(circleList[:2])
+
+def debug_tangentLines(circleList):
+    lines = allValidTangents(circleList)
+    return lines
 
 
 if __name__ == '__main__':
