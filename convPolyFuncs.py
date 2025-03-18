@@ -252,7 +252,7 @@ def findIntPoint(line1,line2): #takes two InfLines and finds the intersection
 def convPoly(circleList):
     #separate logic for 1, 2, and 3+ circles
     if len(circleList) == 1: #defines a square
-        return circleList[0].area
+        return circleList[0].getArea()
 
     if len(circleList) == 2: #defines a trapezoid type thing
         sortedCircs = sorted(circleList, key = lambda x: x.tupCenter())

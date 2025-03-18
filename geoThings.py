@@ -10,7 +10,7 @@ class Circle:
         return (self.center.x, self.center.y)
     def data(self):
         return [(self.center.x,self.center.y), self.radius]
-    def area(self):
+    def getArea(self):
         return pi*self.radius**2
 
 class InfLine: #expressed as y=mx+b, short for infinite line
