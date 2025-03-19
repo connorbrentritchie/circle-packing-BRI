@@ -324,6 +324,7 @@ def convPoly(circleList):
                 else:
                     raise Exception("Adding horizontal tangent failed (from checkPolygon fail)\n", "radii:", list(map(lambda c: c.radius, circleList)))
 
+                #redoes finding the intersection points with the new horizontal tangent
                 intPoints = []
                 for index in range(len(exteriorTangents)):
                     tN = exteriorTangents[index]
