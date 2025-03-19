@@ -137,9 +137,20 @@ def isValidTangent(tanSeg, circleList):
     else:
         return False
 
-# # largestOuterCirc :: [Circle] -> Circle
-# def largestOuterCirc(circleList):
-#     cHull = centerHull(circleList)
+# largestOuterCirc :: [Circle] -> Circle
+#gets circle of largest radius on the center hull
+def largestOuterCirc(circleList):
+    cHull = centerHull(circleList)
+    
+    #finds the circles corresponding to vertices of cHull
+    vertices = list(cHull.exterior.coords) #vertices of cHull
+    centerList = [c.center for c in circleList] #centers of circleList in same order as the circles
+    outerCircs = []
+    for v in vertices:
+        outerCircs.append(
+            circleList[centerList.index(Point(v))]
+            )
+    return sorted(outerCircs, key = lambda x: x.radius, reverse = True)[0] #chooses the largest circle from outerCircs as the starting circle
 
 
 # allValidTangents :: [Circle] -> Bool -> [(InfLine, LineString)]
@@ -151,19 +162,9 @@ def allValidTangents(circleList, testDraw = False): #takes a list of circles and
     if testDraw == True:
         setup(12,9)
 
-    #finds the circles corresponding to vertices of cHull
-    vertices = list(cHull.exterior.coords) #vertices of cHull
-    centerList = [c.center for c in circleList] #centers of circleList in same order as the circles
-    outerCircs = []
-    for v in vertices:
-        outerCircs.append(
-            circleList[centerList.index(Point(v))]
-            )
-
-
     #actually finds the valid tangents
     #sets everything up for while loop
-    startCirc = sorted(outerCircs, key = lambda x: x.radius, reverse = True)[0] #chooses the largest circle from outerCircs as the starting circle
+    startCirc = largestOuterCirc(circleList)
     currentCirc = startCirc #starts the while loop on startCirc
     prevCircs = [startCirc] #so prevCircs isn't empty the first time the while loop checks it
 
@@ -306,20 +307,38 @@ def convPoly(circleList):
 
             resultConvPoly = Polygon(intPoints + [intPoints[0]])
             
-            #checks to see if the polygon is actually valid. If not, takes first and last tangent and adds a tangent to the first circle to hopefully complete the polygon.
+            #checks to see if the polygon is actually valid. If not, takes first and last tangent and adds a tangent to the first circle and redoes finding the intersection points to hopefully complete the polygon.
             if not checkPolygon(circleList, resultConvPoly):
-                tan1 = exteriorTangents[0]
-                tan2 = exteriorTangents[-1]
+                #adds a horizontal line on the starting Circle
+                startCirc = largestOuterCirc(circleList)
+                newTangent1 = InfLine(0.0, startCirc.center.y - startCirc.radius)
+                newTangent2 = InfLine(0.0, startCirc.center.y + startCirc.radius)
+                bounds = configBounds(circleList)
 
-                newTangent = InfLine(0.0, )
+                newTanSeg1, newTanSeg2 = lineToSegment(newTangent1, bounds), lineToSegment(newTangent2, bounds)
 
+                if isValidTangent(newTanSeg1, circleList):
+                    exteriorTangents.append(newTangent1)
+                elif isValidTangent(newTanSeg2, circleList):
+                    exteriorTangents.append(newTangent2)
+                else:
+                    raise Exception("Adding horizontal tangent failed (from checkPolygon fail)\n", "radii:", list(map(lambda c: c.radius, circleList)))
 
-            
+                intPoints = []
+                for index in range(len(exteriorTangents)):
+                    tN = exteriorTangents[index]
+                    tNp1 = exteriorTangents[(index+1)%len(exteriorTangents)]
+
+                    intPoints.append(findIntPoint(tN, tNp1))
+
+                resultConvPoly = Polygon(intPoints + [intPoints[0]])
             
             return resultConvPoly
 
         except: #sometimes breaks as described above, just does the correct alg with the first two circles in the list
             return convPoly(circleList[:2])
+
+
 
 # checkPolygon :: [Circle] -> shapely Polygon -> Bool
 #checks if all the circles are inside the polygon, and the area of the polygon is bigger than the sum of all the circles' area

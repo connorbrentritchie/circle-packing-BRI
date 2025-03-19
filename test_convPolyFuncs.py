@@ -28,7 +28,7 @@ class Testing(unittest.TestCase):
         self.testPolygon1 = cpf.convPoly(self.testCircleList1)
         
         testRadii2 = [500,1850,2950,900]
-        self.testCircleList2 = pa.radSumAlg(testRadii2)
+        self.testCircleList2 = pa.polyAreaAlg(testRadii2)
         self.testPolygon2 = cpf.convPoly(self.testCircleList2)
     
     def test_convPoly_one_circle_throws_error(self):
@@ -43,11 +43,11 @@ class Testing(unittest.TestCase):
             poly.area, 200.0
         ))
 
+    def test_convPoly_checkPolygon_workaround(self):
+        self.assertAlmostEqual(52575222.6210679, self.testPolygon2.area, 3)
+
     def test_checkPolygon_1(self):
         self.assertTrue(cpf.checkPolygon(self.testCircleList1, self.testPolygon1))
-
-    def test_checkPolygon_2(self):
-        self.assertFalse(cpf.checkPolygon(self.testCircleList2, self.testPolygon2))
 
 
 if __name__ == "__main__":

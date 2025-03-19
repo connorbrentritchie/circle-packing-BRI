@@ -6,12 +6,25 @@ from drawFuncsV2 import setup, pshow, pdraw, drawCircles, drawPolygon
 from shapely import Polygon
 from math import pi
 
+#mainly just to make sure everything still works before a commit
 def main():
     rads1 = [5]
     rads2 = [4,5]
     rads3 = [3,6,19,15,6,10,11,11]
+    rads4 = [500,1850,2950,900]
 
-    print(maxClusterArea(rads1), maxClusterArea(rads2), maxClusterArea(rads3))
+    testrs = radSumAlg(rads4)
+    testpa = polyAreaAlg(rads4)
+
+    setup()
+    drawCircles(testrs)
+    drawPolygon(convPoly(testrs))
+    pshow()
+    drawCircles(testpa)
+    drawPolygon(convPoly(testpa))
+    pshow()
+
+    print(maxClusterArea(rads1), maxClusterArea(rads2), maxClusterArea(rads3), maxClusterArea(rads4))
 
 def maxClusterArea(radii):
     if len(radii) == 1:
