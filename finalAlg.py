@@ -13,10 +13,6 @@ def main():
     rads3 = [3,6,19,15,6,10,11,11]
     rads4 = [500,1850,2950,900]
 
-    print(1)
-    print(2)
-    print(3)
-
     print(maxClusterArea(rads1), maxClusterArea(rads2), maxClusterArea(rads3), maxClusterArea(rads4))
 
 def maxClusterArea(radii):
