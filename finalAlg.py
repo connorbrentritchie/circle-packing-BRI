@@ -15,6 +15,7 @@ def main():
 
     print(1)
     print(2)
+    print(3)
 
     print(maxClusterArea(rads1), maxClusterArea(rads2), maxClusterArea(rads3), maxClusterArea(rads4))
 
