@@ -16,21 +16,25 @@ def main():
 
     df.setup()
     df.drawCircles(circs)
-    df.drawSegments(lineSegs)
+    df.drawLines(lines)
+    # df.drawPolygon(cpf.convPoly(circs))
     df.pshow()
 
 
 class Testing(unittest.TestCase):
-    def test_sum(self):
-        self.assertEqual(3, 2 + 1)
+    def setUp(self):
+        testRadii1 = [5,6,7,8]
+        self.testCircleList1 = pa.radSumAlg(testRadii1)
+        self.testPolygon1 = cpf.convPoly(self.testCircleList1)
+        
+        testRadii2 = [500,1850,2950,900]
+        self.testCircleList2 = pa.radSumAlg(testRadii2)
+        self.testPolygon2 = cpf.convPoly(self.testCircleList2)
     
-
-    def test_convPoly_returns_area_of_circle_with_only_one_circle(self):
+    def test_convPoly_one_circle_throws_error(self):
         circ = Circle(Point(0,0), 5.0)
-        polyArea = cpf.convPoly([circ])
-        self.assertTrue(isclose(
-            polyArea, 25.0 * pi
-        ))
+        with self.assertRaises(Exception):
+            cpf.convPoly(circ)
 
     def test_convPoly_2_circles_returns_rectangle(self):
         circs = pa.radSumAlg([5,5])
@@ -39,7 +43,16 @@ class Testing(unittest.TestCase):
             poly.area, 200.0
         ))
 
+    def test_checkPolygon_1(self):
+        self.assertTrue(cpf.checkPolygon(self.testCircleList1, self.testPolygon1))
+
+    def test_checkPolygon_2(self):
+        self.assertFalse(cpf.checkPolygon(self.testCircleList2, self.testPolygon2))
+
 
 if __name__ == "__main__":
-    unittest.main()
-    main()
+    do_tests = True
+    if do_tests == True:
+        unittest.main()
+    else:
+        main()

@@ -137,6 +137,10 @@ def isValidTangent(tanSeg, circleList):
     else:
         return False
 
+# # largestOuterCirc :: [Circle] -> Circle
+# def largestOuterCirc(circleList):
+#     cHull = centerHull(circleList)
+
 
 # allValidTangents :: [Circle] -> Bool -> [(InfLine, LineString)]
 def allValidTangents(circleList, testDraw = False): #takes a list of circles and returns all of the valid exterior tangents
@@ -251,8 +255,8 @@ def findIntPoint(line1,line2): #takes two InfLines and finds the intersection
 #bandaid fix for now is to try except into just doing convPoly of the first two circles
 def convPoly(circleList):
     #separate logic for 1, 2, and 3+ circles
-    if len(circleList) == 1: #defines a square
-        return circleList[0].getArea()
+    if len(circleList) == 1: #throws an error, should be handled by maxClusterArea
+        raise Exception("Can't make polygon from one circle, should have been handled by maxClusterArea")
 
     if len(circleList) == 2: #defines a trapezoid type thing
         sortedCircs = sorted(circleList, key = lambda x: x.tupCenter())
@@ -289,7 +293,10 @@ def convPoly(circleList):
 
     else:
         try:
-            exteriorTangents = [t[0] for t in allValidTangents(circleList)]
+            #default algorithm
+            tangentTuples = allValidTangents(circleList)
+            exteriorTangents = [t[0] for t in tangentTuples]
+            
             intPoints = []
             for index in range(len(exteriorTangents)):
                 tN = exteriorTangents[index]
@@ -298,15 +305,37 @@ def convPoly(circleList):
                 intPoints.append(findIntPoint(tN, tNp1))
 
             resultConvPoly = Polygon(intPoints + [intPoints[0]])
+            
+            #checks to see if the polygon is actually valid. If not, takes first and last tangent and adds a tangent to the first circle to hopefully complete the polygon.
+            if not checkPolygon(circleList, resultConvPoly):
+                tan1 = exteriorTangents[0]
+                tan2 = exteriorTangents[-1]
 
+                newTangent = InfLine(0.0, )
+
+
+            
+            
             return resultConvPoly
 
         except: #sometimes breaks as described above, just does the correct alg with the first two circles in the list
             return convPoly(circleList[:2])
 
-def debug_tangentLines(circleList):
-    lines = allValidTangents(circleList)
-    return lines
+# checkPolygon :: [Circle] -> shapely Polygon -> Bool
+#checks if all the circles are inside the polygon, and the area of the polygon is bigger than the sum of all the circles' area
+def checkPolygon(circleList, polygon):
+    cond1 = polygon.covers(centerHull(circleList))
+
+    cond2 = polygon.area > sum(map(lambda c: c.getArea(), circleList))
+
+    if not cond1:
+        print("checkPolygon failed: polygon does not contain some or all circles")
+        print("radii", list(map(lambda c: c.radius, circleList)))
+    if not cond2:
+        print("cond2 failed: polygon area smaller than expected")
+        print("radii", list(map(lambda c: c.radius, circleList)))
+
+    return cond1 & cond2
 
 
 if __name__ == '__main__':
