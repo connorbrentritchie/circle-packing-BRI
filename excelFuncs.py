@@ -23,47 +23,55 @@ def getCols(sheet):
         cols[title] = col[1:] #the non-first elements of the column, skipping the title
     return cols
 
-columns = getCols(kaj1)
+def getAreasOfActualClusters():
+    pass
 
-def assocCells(colName, dataCols, resultCol):
-    #string, [string], string
-    results = []
-    for cell in columns[colName]:
-        rowNum = cell.row - 2
-        results.append([cell,[columns[name][rowNum].value for name in dataCols], columns[resultCol][rowNum]])
-    return results
 
-stuff = assocCells("fixed radius", ["Date","Zone","Grazing Block"],"max cluster area")
+def applyMaxClusterArea():
+    columns = getCols(kaj1)
 
-groupedRows = [list(grp) for k, grp in
-    groupby(stuff, lambda c: c[1])]
+    def assocCells(colName, dataCols, resultCol):
+        #string, [string], string
+        results = []
+        for cell in columns[colName]:
+            rowNum = cell.row - 2
+            results.append([cell,[columns[name][rowNum].value for name in dataCols], columns[resultCol][rowNum]])
+        return results
 
-print("There are",len(groupedRows),"groups")
+    stuff = assocCells("fixed radius", ["Date","Zone","Grazing Block"],"max cluster area")
 
-def doit():
-    for g in groupedRows:
-        try:
-            radii = [el[0].value for el in g]
-            if None in radii:
-                mcArea = None
-            elif 0 in radii:
-                nonzeroRadii = [r for r in radii if r != 0]
-                if nonzeroRadii == []:
+    groupedRows = [list(grp) for k, grp in
+        groupby(stuff, lambda c: c[1])]
+
+    print("There are",len(groupedRows),"groups")
+
+    doit()
+    saveit()
+
+    def doit():
+        for g in groupedRows:
+            try:
+                radii = [el[0].value for el in g]
+                if None in radii:
                     mcArea = None
+                elif 0 in radii:
+                    nonzeroRadii = [r for r in radii if r != 0]
+                    if nonzeroRadii == []:
+                        mcArea = None
+                    else:
+                        mcArea = maxClusterArea(nonzeroRadii)
                 else:
-                    mcArea = maxClusterArea(nonzeroRadii)
-            else:
-                mcArea = maxClusterArea(radii)
+                    mcArea = maxClusterArea(radii)
 
-            for cell in [el[2] for el in g]:
-                cell.value = mcArea
+                for cell in [el[2] for el in g]:
+                    cell.value = mcArea
 
-            print("Finished group")
-        except:
-            print(g)
-            sys.exit(0)
-    print("Finished all the groups")
+                print("Finished group")
+            except:
+                print(g)
+                sys.exit(0)
+        print("Finished all the groups")
 
-def saveit():
-    resultpath = "Excel Files\Kajiado Data Results.xlsx"
-    kaj.save(resultpath)
+    def saveit():
+        resultpath = "Excel Files\Kajiado Data Results.xlsx"
+        kaj.save(resultpath)
