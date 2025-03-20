@@ -1,4 +1,5 @@
 import openpyxl as pxl
+import pandas as pd
 from itertools import groupby
 import sys
 from finalAlg import maxClusterArea
