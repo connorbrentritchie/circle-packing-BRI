@@ -3,23 +3,35 @@ import pandas as pd
 from itertools import groupby
 import sys
 from finalAlg import maxClusterArea
-#functions for reading and writing excel sheets
 
-'''
-iterate over radius column
-for each cell, associate to it
-    1. the date, block, and zone cells in the same row
-    2. the result cell in the "maximum cluster area" column
-'''
+
+
 
 filepath = r'D:\Work\Excel Files\Kajiado Data v1.xlsx'
+krcp_filepath = r"D:\Work\Excel Files\KRCPLivestockdata Locations UTM Fixed Radii.xlsx"
+pdtesting_filepath = r"D:\Work\Excel Files\KRCP Testing.csv"
 
-csv_resultpath1 = r'D:\Work\Excel Files\Kajiado Data Results1 csv.csv'
+csv_resultpath = r'D:\Work\Excel Files\Kajiado Data Results1 csv.csv'
 
-pdkaj = pd.read_excel(filepath, sheet_name = "three")
-pdkaj1 = pd.read_excel(filepath, sheet_name = 1)
-def thing():
-    pdkaj1.to_csv(csv_resultpath1)
+
+# pdkrcp = pd.read_excel(krcp_filepath, sheet_name = 0)
+pdtesting = pd.read_excel(krcp_filepath, sheet_name = 1)
+
+
+
+testinggroups = pdtesting.groupby(
+    ["Block","Zone","Veggie"]
+)
+
+results = []
+# print("test group:\n", testinggroups.groups)
+for name, group in testinggroups:
+    group["Result"] = maxClusterArea(list(group["Radius"].values))
+    results.append(group["Result"])
+
+
+pdtesting["Result"] = pd.concat(results)
+print(pdtesting)
 
 
 
@@ -30,6 +42,13 @@ def getAreasOfActualClusters():
     pass
 
 def applyMaxClusterArea():
+    '''
+    iterate over radius column
+    for each cell, associate to it
+        1. the date, block, and zone cells in the same row
+        2. the result cell in the "maximum cluster area" column
+    '''
+    
     #openpyxl loading
     kaj = pxl.load_workbook(filepath)
     kaj1 = kaj[kaj.sheetnames[0]]

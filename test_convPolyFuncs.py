@@ -8,7 +8,10 @@ import unittest
 
 
 def main():    
-    radii = [500,1850,2950,900]
+    radii1 = [500,1850,2950,900]
+    radii2 = [88,17,13]
+
+    radii = radii2
     circs = pa.radSumAlg(radii)
 
     lines = [thing[0] for thing in cpf.allValidTangents(circs)]
@@ -16,8 +19,8 @@ def main():
 
     df.setup()
     df.drawCircles(circs)
-    df.drawLines(lines)
-    # df.drawPolygon(cpf.convPoly(circs))
+    # df.drawLines(lines)
+    df.drawPolygon(cpf.convPoly(circs))
     df.pshow()
 
 
@@ -51,8 +54,8 @@ class Testing(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    do_tests = True
-    if do_tests == True:
+    do_tests = False
+    if do_tests:
         unittest.main()
     else:
         main()

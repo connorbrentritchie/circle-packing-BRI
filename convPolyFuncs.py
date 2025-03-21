@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 
 def main():
     circ = Circle(Point(0,0),5)
+    radii = [88,17,13]
 
 def circLabel(circ, circleList): #finds the label of a circle on the drawing
     return circleList.index(circ)+1
@@ -347,13 +348,6 @@ def checkPolygon(circleList, polygon):
     cond1 = polygon.covers(centerHull(circleList))
 
     cond2 = polygon.area > sum(map(lambda c: c.getArea(), circleList))
-
-    if not cond1:
-        print("checkPolygon failed: polygon does not contain some or all circles")
-        print("radii", list(map(lambda c: c.radius, circleList)))
-    if not cond2:
-        print("cond2 failed: polygon area smaller than expected")
-        print("radii", list(map(lambda c: c.radius, circleList)))
 
     return cond1 & cond2
 
