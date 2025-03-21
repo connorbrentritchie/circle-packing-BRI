@@ -12,23 +12,36 @@ for each cell, associate to it
     2. the result cell in the "maximum cluster area" column
 '''
 
-filepath = "Excel Files\Kajiado Data v1.xlsx"
-kaj = pxl.load_workbook(filepath)
-kaj1 = kaj[kaj.sheetnames[0]]
+filepath = r'D:\Work\Excel Files\Kajiado Data v1.xlsx'
 
-#for each column, makes a dictionary entry of the value of the 1st row, and the rest of the cells
-def getCols(sheet):
-    cols = {}
-    for col in sheet.iter_cols():
-        title = col[0].value #whatever type col[0].value is, probably a string
-        cols[title] = col[1:] #the non-first elements of the column, skipping the title
-    return cols
+csv_resultpath1 = r'D:\Work\Excel Files\Kajiado Data Results1 csv.csv'
+
+pdkaj = pd.read_excel(filepath, sheet_name = "three")
+pdkaj1 = pd.read_excel(filepath, sheet_name = 1)
+def thing():
+    pdkaj1.to_csv(csv_resultpath1)
+
+
+
+
+
 
 def getAreasOfActualClusters():
     pass
 
-
 def applyMaxClusterArea():
+    #openpyxl loading
+    kaj = pxl.load_workbook(filepath)
+    kaj1 = kaj[kaj.sheetnames[0]]
+    
+    #for each column, makes a dictionary entry of the value of the 1st row, and the rest of the cells
+    def getCols(sheet): 
+        cols = {}
+        for col in sheet.iter_cols():
+            title = col[0].value #whatever type col[0].value is, probably a string
+            cols[title] = col[1:] #the non-first elements of the column, skipping the title
+        return cols
+    
     columns = getCols(kaj1)
 
     def assocCells(colName, dataCols, resultCol):
@@ -45,9 +58,6 @@ def applyMaxClusterArea():
         groupby(stuff, lambda c: c[1])]
 
     print("There are",len(groupedRows),"groups")
-
-    doit()
-    saveit()
 
     def doit():
         for g in groupedRows:
@@ -74,5 +84,8 @@ def applyMaxClusterArea():
         print("Finished all the groups")
 
     def saveit():
-        resultpath = "Excel Files\Kajiado Data Results.xlsx"
+        resultpath = r"D:\Work\Excel Files\Kajiado Data Results.xlsx"
         kaj.save(resultpath)
+
+    doit()
+    saveit()

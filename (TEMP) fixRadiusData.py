@@ -45,11 +45,11 @@ def script(file,sheet,func,sourceCol,resultCol,save_loc):
     print("Success!")
 
 
-file = "Excel Files\Kajiado Data v1.xlsx"
-sheet = "Kajiado Livestock Count and Loc"
+file = r"Excel Files\Kajiado Data v1.xlsx"
+sheet = r"Kajiado Livestock Count and Loc"
 func = radFix
 sourceCol = "radius"
 resultCol = "fixed radius"
-save_loc = "Excel Files\Kajiado Data v1 (Fixed Radii).xlsx"
+save_loc = r"Excel Files\Kajiado Data v1 (Fixed Radii).xlsx"
 def doit():
     script(file,sheet,func,sourceCol,resultCol,save_loc)
