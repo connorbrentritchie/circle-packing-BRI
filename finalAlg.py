@@ -1,4 +1,4 @@
-from geoThings import Circle, randomList
+from geoThings import Circle, randomList, newCircle
 from packingAlgs import radSumAlg, polyAreaAlg, randomAlg
 from convPolyFuncs import convPoly
 from drawFuncsV2 import setup, pshow, pdraw, drawCircles, drawPolygon
@@ -15,6 +15,18 @@ def main():
 
     print(maxClusterArea(rads1), maxClusterArea(rads2), maxClusterArea(rads3), maxClusterArea(rads4))
 
+    #rows 6662 and 6663
+    circ1 = newCircle(179860, 9787669, 1000)
+    circ2 = newCircle(179336, 9789180, 15)
+    cList = [circ1, circ2]
+
+    print(actualClusterArea(cList))
+
+    setup()
+    drawCircles(cList)
+    drawPolygon(convPoly(cList))
+    pshow()
+
 def maxClusterArea(radii):
     if len(radii) == 1:
         return pi*radii[0]**2 #returns area of the one circle
@@ -25,6 +37,13 @@ def maxClusterArea(radii):
             return convPoly(radSumAlg(radii)).area #sometimes can happen that there's three circles, but effectively only 2 for the polygon, so it breaks
     else:
         return convPoly(radSumAlg(radii)).area #way faster and just about as accurate at large number of radii
+
+def actualClusterArea(circleList):
+    if len(circleList) == 1:
+        return pi*circleList[0].radius**2
+    else:
+        return convPoly(circleList).area
+
 
 if __name__ == "__main__":
     main()

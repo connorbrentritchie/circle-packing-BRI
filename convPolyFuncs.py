@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 
 def main():
     circ = Circle(Point(0,0),5)
+    radii = [88,17,13]
 
 def circLabel(circ, circleList): #finds the label of a circle on the drawing
     return circleList.index(circ)+1
@@ -229,6 +230,8 @@ def allValidTangents(circleList, testDraw = False): #takes a list of circles and
             pshow()
 
         count+=1
+        if count > len(circleList):
+            raise NameError("Too many circles")
 
     return validTans
 
