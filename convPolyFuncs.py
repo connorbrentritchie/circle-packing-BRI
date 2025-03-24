@@ -230,6 +230,8 @@ def allValidTangents(circleList, testDraw = False): #takes a list of circles and
             pshow()
 
         count+=1
+        if count > len(circleList):
+            raise NameError("Too many circles")
 
     return validTans
 

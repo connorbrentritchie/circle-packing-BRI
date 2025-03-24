@@ -2,7 +2,9 @@ import openpyxl as pxl
 import pandas as pd
 from itertools import groupby
 import sys
-from finalAlg import maxClusterArea
+from finalAlg import maxClusterArea, actualClusterArea
+from geoThings import newCircle
+from convPolyFuncs import convPoly
 
 
 
@@ -10,36 +12,101 @@ from finalAlg import maxClusterArea
 filepath = r'D:\Work\Excel Files\Kajiado Data v1.xlsx'
 krcp_filepath = r"D:\Work\Excel Files\KRCPLivestockdata Locations UTM Fixed Radii.xlsx"
 pdtesting_filepath = r"D:\Work\Excel Files\KRCP Testing.csv"
+krcp_resultpath = r"D:\Work\Excel Files\KRCPLivestockdata Locations UTM Fixed Radii Results.csv"
 
-csv_resultpath = r'D:\Work\Excel Files\Kajiado Data Results1 csv.csv'
 
-
-# pdkrcp = pd.read_excel(krcp_filepath, sheet_name = 0)
+pdkrcp = pd.read_excel(krcp_filepath, sheet_name = 0)
 pdtesting = pd.read_excel(krcp_filepath, sheet_name = 1)
 
+# testinggroups = pdtesting.groupby(
+#     ["Block","Zone","Veggie"]
+# )
 
+# def test1():
+#     results = []
+#     # print("test group:\n", testinggroups.groups)
+#     for name, group in testinggroups:
+#         group["Result"] = maxClusterArea(list(group["Radius"].values))
+#         results.append(group["Result"])
+#     return results
 
-testinggroups = pdtesting.groupby(
-    ["Block","Zone","Veggie"]
-)
+# df.apply(lambda x: f(x.col1, x.col2), axis = 1)
 
-results = []
-# print("test group:\n", testinggroups.groups)
-for name, group in testinggroups:
-    group["Result"] = maxClusterArea(list(group["Radius"].values))
-    results.append(group["Result"])
+def getActualArea(accuracyCol, xcoordCol, ycoordCol, radiusCol):
+    def go(n):
+        if abs(n) > 150:
+            return True
+        else:
+            return False
+    
+    if accuracyCol.apply(go).any() or radiusCol.apply(lambda x: x == 0).any():
+        return None
 
-
-pdtesting["Result"] = pd.concat(results)
-print(pdtesting)
-
-
-
-
-
+    
 
 def getAreasOfActualClusters():
-    pass
+    def go(n):
+        if abs(n) > 150:
+            return True
+        else:
+            return False
+    
+    results = []
+    
+    krcp_groups = pdkrcp.groupby(
+        [pdkrcp["Date"].dt.date, "Zone", "Grazing_Block"],
+        sort = False
+    )
+    print("num of groups:", len(krcp_groups))
+    groupNum = 0
+    for _, group in krcp_groups:
+            groupNum += 1
+            print("\n\n\n\n\n")
+            print(groupNum,"\n")
+
+            if group["GPS_Accuracy"].apply(go).any() or group["fixed_radius"].apply(lambda x: float(x) == 0.0).any():
+                group["actual_area"] = None
+                results.append(group["actual_area"])
+            
+            else:
+                circleList = []
+                for i in range(len(group)):
+                    print(group["POINT_X"].to_list()[i])
+                    print(group["POINT_Y"].to_list()[i])
+                    print(group["fixed_radius"].to_list()[i])
+                    
+                    circleList.append(
+                        newCircle(
+                            group["POINT_X"].to_list()[i],
+                            group["POINT_Y"].to_list()[i],
+                            group["fixed_radius"].to_list()[i]
+                        )
+                    )
+                
+                try:
+                    print("doing area")
+                    group["actual_area"] = actualClusterArea(circleList)
+                    print("finished area")
+                except:
+                    print("shit")
+                    group["actual_area"] = 0
+                results.append(group["actual_area"])
+
+            print(group[["Date", "Zone", "Grazing_Block", "GPS_Accuracy","POINT_X","POINT_Y","fixed_radius","actual_area"]])
+            print("finished group", groupNum)
+
+    
+    pdkrcp["actual_area"] = pd.concat(results)
+    print("\n\n\n\n\nResults:", pdkrcp[["GPS_Accuracy","POINT_X","POINT_Y","fixed_radius","actual_area"]])
+
+    pdkrcp.to_csv(krcp_resultpath)
+
+
+    
+
+
+getAreasOfActualClusters()    
+
 
 def applyMaxClusterArea():
     '''

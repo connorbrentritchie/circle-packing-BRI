@@ -13,6 +13,9 @@ class Circle:
     def getArea(self):
         return pi*self.radius**2
 
+def newCircle(xcoord, ycoord, radius):
+    return Circle(Point(xcoord,ycoord), radius)
+
 class InfLine: #expressed as y=mx+b, short for infinite line
     def __init__(self, slope, yInt):
         self.m=slope
