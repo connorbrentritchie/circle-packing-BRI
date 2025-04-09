@@ -60,40 +60,40 @@ def getAreasOfActualClusters():
     print("num of groups:", len(krcp_groups))
     groupNum = 0
     for _, group in krcp_groups:
-            groupNum += 1
-            print("\n\n\n\n\n")
-            print(groupNum,"\n")
+        groupNum += 1
+        print("\n\n\n\n\n")
+        print(groupNum,"\n")
 
-            if group["GPS_Accuracy"].apply(go).any() or group["fixed_radius"].apply(lambda x: float(x) == 0.0).any():
-                group["actual_area"] = None
-                results.append(group["actual_area"])
-            
-            else:
-                circleList = []
-                for i in range(len(group)):
-                    print(group["POINT_X"].to_list()[i])
-                    print(group["POINT_Y"].to_list()[i])
-                    print(group["fixed_radius"].to_list()[i])
-                    
-                    circleList.append(
-                        newCircle(
-                            group["POINT_X"].to_list()[i],
-                            group["POINT_Y"].to_list()[i],
-                            group["fixed_radius"].to_list()[i]
-                        )
-                    )
+        if group["GPS_Accuracy"].apply(go).any() or group["fixed_radius"].apply(lambda x: float(x) == 0.0).any():
+            group["actual_area"] = None
+            results.append(group["actual_area"])
+        
+        else:
+            circleList = []
+            for i in range(len(group)):
+                print(group["POINT_X"].to_list()[i])
+                print(group["POINT_Y"].to_list()[i])
+                print(group["fixed_radius"].to_list()[i])
                 
-                try:
-                    print("doing area")
-                    group["actual_area"] = actualClusterArea(circleList)
-                    print("finished area")
-                except:
-                    print("shit")
-                    group["actual_area"] = 0
-                results.append(group["actual_area"])
+                circleList.append(
+                    newCircle(
+                        group["POINT_X"].to_list()[i],
+                        group["POINT_Y"].to_list()[i],
+                        group["fixed_radius"].to_list()[i]
+                    )
+                )
+            
+            try:
+                print("doing area")
+                group["actual_area"] = actualClusterArea(circleList)
+                print("finished area")
+            except:
+                print("shit")
+                group["actual_area"] = 0
+            results.append(group["actual_area"])
 
-            print(group[["Date", "Zone", "Grazing_Block", "GPS_Accuracy","POINT_X","POINT_Y","fixed_radius","actual_area"]])
-            print("finished group", groupNum)
+        print(group[["Date", "Zone", "Grazing_Block", "GPS_Accuracy","POINT_X","POINT_Y","fixed_radius","actual_area"]])
+        print("finished group", groupNum)
 
     
     pdkrcp["actual_area"] = pd.concat(results)
