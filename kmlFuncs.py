@@ -1,21 +1,72 @@
-from geoThings import Circle, newCircle
-
 import pandas as pd
-from shapely import Point, Polygon
 from polycircles import polycircles
 import simplekml as skml
-import utm
+
+from os import mkdir
 
 '''
-utm uses lat, lon
+utm uses lat lon
 kml.newpoint uses lon lat
 '''
 
+#Constants
 openpath = "D:\\Work\\Excel Files\\KRCPLivestockdata Locations UTM Fixed Radii.xlsx"
+kmzfolderpath = "D:\\Work\\QGIS Stuff\\KRCP kmzs"
+
+kmlsavepath = "D:\\Work\\QGIS Stuff\\TestStuff\\"
+housecoords = (42.068611, -111.786667)
+
+
 
 def main():
     krcp1 = pd.read_excel(openpath, sheet_name = 0)
-    groupbyCommunityBiweek(krcp1)
+    df_to_kmzs(krcp1)
+
+
+
+#inputs DataFrame, outputs nothing but saves kmzs
+def df_to_kmzs(df):
+    df_groups = groupbyCommunityBiweek(df)
+    makeBiweekCommFolders(kmzfolderpath)
+
+    for (comm, biweek), group in df_groups:
+        filename = comm + '-' + biweek + '.kml'
+        filesavepath = kmzfolderpath + "\\" + comm + "\\" + filename
+
+        currentkmz = skml.Kml()
+        currentkmz.document.name = comm + '-' + biweek
+
+        #iterates over every row, 1 row = 1 circle
+        for _, row in group.iterrows():
+            isValidRow = (
+                row["fixed_radius"] is not None and 
+                row["fixed_radius"] > 0 and
+                -180.0 < row["N"] < 180.0 and
+                -180.0 < row["E"] < 180.0
+            )
+
+            if isValidRow:
+                #the center of the circle
+
+                currentkmz.newpoint(
+                    coords = [(row["E"], row["N"])]
+                )
+
+                #the circle
+                circle = polycircles.Polycircle(
+                    latitude = row["N"],
+                    longitude = row["E"],
+                    radius = row["fixed_radius"],
+                    number_of_vertices = 36
+                )
+                currentkmz.newpolygon(
+                    outerboundaryis = circle.to_kml()
+                )
+        
+        currentkmz.save(filesavepath)
+
+
+        
 
 
 
@@ -71,11 +122,14 @@ def groupbyCommunityBiweek(inputdf):
             case "olgulului_group_ranch":
                 return "OLG"
             case "olkiramatian":
-                return "OLK"
+                return "OMN"
             case "shompole":
                 return "SHO"
             case "shompole_group_ranch":
                 return "SHO"
+            case otherThing:
+                print(otherThing)
+                raise NameError("FAIL: unrecognized comm")
     
     #filters 2023 dates and oldonyo_nyokie
     inputdf = inputdf.loc[
@@ -84,14 +138,24 @@ def groupbyCommunityBiweek(inputdf):
         (inputdf["Community"] != "ol_donyo_nyokie")
     ]
 
-    inputdf["Date"] = inputdf["Date"].apply(date_to_biweek)
-    inputdf["Community"] = inputdf["Community"].apply(comm_to_abbr)
+    #these give "a value is trying to be set on a copy of a slice from a DataFrame" warning, googling indicates probably don't need to care
+    inputdf["Biweek"] = inputdf["Date"].apply(date_to_biweek)
+    inputdf["CommAbbreviation"] = inputdf["Community"].apply(comm_to_abbr)
 
     inputdf_groups = inputdf.groupby(
-        ["Date","Community"]
+        ["CommAbbreviation","Biweek"]
     )
 
     return inputdf_groups
+
+#makes the six subfolders in the root folder
+def makeBiweekCommFolders(rootFolder):
+    mkdir(rootFolder + "\\ESL")
+    mkdir(rootFolder + "\\RME")
+    mkdir(rootFolder + "\\OLK")
+    mkdir(rootFolder + "\\OLG")
+    mkdir(rootFolder + "\\OMN")
+    mkdir(rootFolder + "\\SHO")
 
 
 if __name__ == '__main__':
