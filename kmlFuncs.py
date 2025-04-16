@@ -25,6 +25,7 @@ def main():
 
 
 #inputs DataFrame, outputs nothing but saves kmzs
+#for now have to manually smash them all together into one kmz with google earth, can fix later if needed
 def df_to_kmzs(df):
     df_groups = groupbyCommunityBiweek(df)
     makeBiweekCommFolders(kmzfolderpath)
