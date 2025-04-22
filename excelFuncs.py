@@ -6,7 +6,10 @@ from finalAlg import maxClusterArea, actualClusterArea
 from geoThings import newCircle
 from convPolyFuncs import convPoly
 
-
+'''
+This file is kind of a mess right now.
+It has all the functions pertaining to working with the data from excel sheets.
+'''
 
 
 filepath = r'D:\Work\Excel Files\Kajiado Data v1.xlsx'

@@ -6,6 +6,11 @@ from drawFuncsV2 import setup, pshow, pdraw, drawCircles, drawPolygon
 from shapely import Polygon
 from math import pi
 
+
+'''
+this file has the function maxClusterArea, which takes in a list of radii and directly returns the area of the maximum cluster.
+'''
+
 #mainly just to make sure everything still works before a commit
 def main():
     rads1 = [5]

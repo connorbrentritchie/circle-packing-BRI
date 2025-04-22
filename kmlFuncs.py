@@ -5,6 +5,13 @@ import simplekml as skml
 from os import mkdir
 
 '''
+this file has all the functions for generating kmzs and kmls.
+'''
+
+
+
+
+'''
 utm uses lat lon
 kml.newpoint uses lon lat
 '''

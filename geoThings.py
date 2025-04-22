@@ -2,6 +2,14 @@ from shapely import Point
 from math import sqrt, pi
 import random
 
+
+'''
+this file has all the basic classes used in the rest of the program, mainly InfLine and Circle.
+Circle consists of a shapely Point and a radius.
+InfLine consists of a slope (m) and a y-intercept (b).
+VertLine is just an x-intercept.
+'''
+
 class Circle:
     def __init__(self, center: Point, radius: float):
         self.center=center

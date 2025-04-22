@@ -1,6 +1,15 @@
 import matplotlib.pyplot as plt
-from geoThings import Circle, InfLine, VertLine, fsqroot, randomList, printCircleData
-from shapely import Point, Polygon, LineString
+from geoThings import Circle, VertLine, fsqroot, randomList, printCircleData
+from shapely import Point
+
+'''
+this file contains all the functions for drawing diagrams with matplotlib. The usual way to use is
+    setup()
+    functions that draw things
+    pshow()
+'''
+
+
 
 def main():
     setup(12,9)
@@ -66,7 +75,7 @@ def drawCircles(circleList): #Circles
     plots = []
     for index, circ in enumerate(circleList):
         #plots the circle
-        plotCirc = plt.Circle(circ.tupCenter(), circ.radius, fill = False)
+        plotCirc = plt.Circle(circ.tupCenter(), circ.radius, fill = False) # type: ignore
         ax.add_patch(plotCirc)
 
         #plots the center, labeled by index in circleList
@@ -107,7 +116,7 @@ def drawPolygon(polygon, polyColor = 'red'): #Polygon, string
 
     plotVertices = drawPoints(coordPoints, polyColor, 'o')
 
-    plotPoly = plt.Polygon(coords, color = polyColor, lw = 2, fill = False)
+    plotPoly = plt.Polygon(coords, color = polyColor, lw = 2, fill = False) # type: ignore
     ax.add_patch(plotPoly)
 
     return [plotPoly, plotVertices]
@@ -128,7 +137,7 @@ def drawBox(bounds):
     fig, ax = plt.gcf(), plt.gca()
     minx, miny, maxx, maxy = bounds
 
-    rect = plt.Rectangle((minx,miny), maxx-minx, maxy-miny, fill = False)
+    rect = plt.Rectangle((minx,miny), maxx-minx, maxy-miny, fill = False) # type: ignore
     ax.add_patch(rect)
 
 if __name__ == '__main__':
