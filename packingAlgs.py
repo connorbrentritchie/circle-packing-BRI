@@ -8,6 +8,15 @@ from convPolyFuncs import convPoly
 from geoThings import Circle, InfLine, VertLine, fsqroot, randomList, printCircleData
 from drawFuncsV2 import setup, pshow, pdraw, drawCircles, drawPoints, drawLines, drawSegments, drawPolygon, removeCircles, removePoints
 
+'''
+this file has all the maximum packing algorithms.
+The main two are radSumAlg and polyAreaAlg.
+    polyAreaAlg is the true greedy algorithm and is ridiculously slow for anything over about 15 circles.
+    radSumAlg minimizes the pairwise sum of distances between circle centers, which is much faster than and just about as accurate as polyAreaAlg for over 15 circles.
+'''
+
+
+
 def main():
     #50 1850 2950
     radii = [50,1850,2950]
@@ -67,6 +76,8 @@ def tangentPlacements(c1: Circle, c2: Circle, R: float): #finds the two possible
             angle = math.degrees(math.atan2(trC2.center.x, trC2.center.y))
         elif trC2.center.x > 0:
             angle = 90 - math.degrees(math.atan2(trC2.center.y, trC2.center.x))
+        else:
+            raise NameError("Impossible angle detected")
 
         rotC1 = trC1 #circle 1 doesn't change under rotation
         rotC2 = Circle(

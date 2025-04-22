@@ -5,7 +5,16 @@ import math
 import random
 import shapely as sh
 from shapely import Point, LineString, Polygon
-import matplotlib.pyplot as plt
+
+'''
+this file contains all the functions pertaining to drawing convex polygons around sets of circles. 
+The main function is convPoly, which takes in a list of Circles, and returns the convex polygon of that set of circles.
+'''
+
+
+
+
+
 
 def main():
     circ = Circle(Point(0,0),5)
@@ -144,7 +153,7 @@ def largestOuterCirc(circleList):
     cHull = centerHull(circleList)
     
     #finds the circles corresponding to vertices of cHull
-    vertices = list(cHull.exterior.coords) #vertices of cHull
+    vertices = list(cHull.exterior.coords) # type: ignore #vertices of cHull
     centerList = [c.center for c in circleList] #centers of circleList in same order as the circles
     outerCircs = []
     for v in vertices:
@@ -196,7 +205,7 @@ def allValidTangents(circleList, testDraw = False): #takes a list of circles and
                             if math.isclose(tan.xInt, prevTan.xInt, rel_tol=1e-10):
                                 sameSlope = True
 
-                    if not anyVerts and math.isclose(tan.m, prevTan.m, rel_tol=1e-10):
+                    if not anyVerts and math.isclose(tan.m, prevTan.m, rel_tol=1e-10): # type: ignore
                         sameSlope = True
 
 
