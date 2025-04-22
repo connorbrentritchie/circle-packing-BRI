@@ -1,2 +1,4 @@
-__pycache__/
 Planning.txt
+/__pycache__/
+/.venv/
+/.vscode/
