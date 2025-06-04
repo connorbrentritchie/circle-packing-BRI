@@ -3,9 +3,13 @@
 
 R version: 4.4.2
 
+
+
 Usage: 
 
-1) finalAlg.R 
+1) finalAlg.R contains functions maxClusterArea and actualClusterArea - these get packing areas for some set of circles
+  - actualClusterArea requires newCircle function from geoThings.R
+2) convPolyFuncs contains the convPoly function which generates convex polygon
 
 
 

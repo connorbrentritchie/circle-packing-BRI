@@ -115,10 +115,10 @@ drawBox <- function(bounds) {
 #------------------------------#
 # Documentation Comments
 #------------------------------#
-'
-this file contains all the functions pertaining to drawing convex polygons around sets of circles. 
-The main function is convPoly, which takes in a list of Circles, and returns the convex polygon of that set of circles.
-'
+
+# this file contains all the functions pertaining to drawing convex polygons around sets of circles. 
+# The main function is convPoly, which takes in a list of Circles, and returns the convex polygon of that set of circles.
+
 
 #------------------------------#
 # Main function
