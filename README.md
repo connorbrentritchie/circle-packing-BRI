@@ -1,5 +1,16 @@
 # Circle Packing
 
+
+R version: 4.4.2
+
+Usage: 
+
+1) finalAlg.R 
+
+
+
+
+
 Python version: 3.13.2
 
 Dependencies:
