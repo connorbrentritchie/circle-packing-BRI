@@ -1,4 +1,4 @@
-from geoThings import Circle, InfLine, VertLine, fsqroot, randomList, printCircleData
+from geoThings import Circle, InfLine, VertLine, fsqroot, randomList, printCircleData, newCircle
 from drawFuncsV2 import setup, pshow, pdraw, drawCircles, drawPoints, drawLines, drawSegments, drawPolygon, drawBox
 
 import math
@@ -17,8 +17,7 @@ The main function is convPoly, which takes in a list of Circles, and returns the
 
 
 def main():
-    circ = Circle(Point(0,0),5)
-    radii = [88,17,13]
+    test_convPoly()
 
 def circLabel(circ, circleList): #finds the label of a circle on the drawing
     return circleList.index(circ)+1
@@ -152,6 +151,10 @@ def isValidTangent(tanSeg, circleList):
 def largestOuterCirc(circleList):
     cHull = centerHull(circleList)
     
+    #covers degenerate cases for the convex hull
+    if type(cHull) in [LineString, Point]:
+        return sorted(circleList, key = lambda circ: circ.radius, reverse = True)[0]
+    
     #finds the circles corresponding to vertices of cHull
     vertices = list(cHull.exterior.coords) # type: ignore #vertices of cHull
     centerList = [c.center for c in circleList] #centers of circleList in same order as the circles
@@ -199,13 +202,8 @@ def allValidTangents(circleList, testDraw = False): #takes a list of circles and
                 sameSlope = False #default value
                 if validTans != []: #only possible if there even is a previous tangent
                     prevTan = validTans[-1][0] #gets the previous tangent line
-                    anyVerts = type(tan) is VertLine or type(prevTan) is VertLine
-                    if anyVerts:
-                        if type(tan) is VertLine and type(prevTan) is VertLine:
-                            if math.isclose(tan.xInt, prevTan.xInt, rel_tol=1e-10):
-                                sameSlope = True
 
-                    if not anyVerts and math.isclose(tan.m, prevTan.m, rel_tol=1e-10): # type: ignore
+                    if math.isclose(tan.m, prevTan.m, rel_tol=1e-10): # type: ignore
                         sameSlope = True
 
 
@@ -244,7 +242,71 @@ def allValidTangents(circleList, testDraw = False): #takes a list of circles and
 
     return validTans
 
+def getOuterCircles(circleList): #takes a list of circles and returns the circles that the correct tangents all touch
+    cHull = centerHull(circleList)
+    bounds = configBounds(circleList)
+    validTans = [] #list of all valid tangents
 
+    #actually finds the valid tangents
+    #sets everything up for while loop
+    startCirc = largestOuterCirc(circleList)
+    currentCirc = startCirc #starts the while loop on startCirc
+    prevCircs = [startCirc] #so prevCircs isn't empty the first time the while loop checks it
+
+
+
+    #logic that actually finds and adds all the valid tangents
+    done = False #initializes done
+    count = 1
+    while done == False:
+
+        potentials = [] #the list of all potential valid tangents
+
+        #Finds all potential tangents
+        #ignores currentCirc since cant have tangent from circle to itself, breaks extTangents
+        #ignores previous circle since we just got a tangent from there, would risk infinite loop
+        for circ in [c for c in circleList if not (c == currentCirc or c == prevCircs[-1])]: #checks all circles that aren't currentCirc or the previous circle
+            tans = extTangents(currentCirc, circ)
+            for tan in tans: #since extTangents returns a pair of lines
+                tanSeg = lineToSegment(tan,bounds)
+
+                #checks that the current tan isn't the same slope as the previous one
+                sameSlope = False #default value
+                if validTans != []: #only possible if there even is a previous tangent
+                    prevTan = validTans[-1][0] #gets the previous tangent line
+
+                    if math.isclose(tan.m, prevTan.m, rel_tol=1e-10): # type: ignore
+                        sameSlope = True
+
+
+                if isValidTangent(tanSeg, circleList) and not sameSlope: #add to potentials if valid, does nothing if not
+                    potentials.append([(tan, tanSeg), circ])
+
+        #choose which tan to add to validTans, updates currentCirc and prevCircs
+        if potentials != []: #potentials always supposed to have at least one thing in it
+            #sorts potentials by how far the other circle is from currentCirc
+            sortedPotentials = sorted(
+                potentials,
+                key = lambda x: x[1].center.distance(currentCirc.center),
+                reverse = True
+                )
+
+            bestTan, bestCirc = sortedPotentials[0] #chooses the farthest possible thing from currentCircle
+
+            validTans.append(bestTan) #adds the valid tangent to validTans
+            prevCircs.append(currentCirc) #adds currentCirc to prevCircs, so it's ignored by for loop next cycle
+            currentCirc = bestCirc #redefines currentCirc as bestCirc, essentially leapfrogs around the diagram
+
+            if currentCirc == startCirc: #ends the while loop if the currentCircle is the starting circle, since we've gone all the way around
+                done = True
+        else: #not supposed to happen
+            break
+
+        count+=1
+        if count > len(circleList):
+            return prevCircs
+
+    return prevCircs
 
 def findIntPoint(line1,line2): #takes two InfLines and finds the intersection
     if type(line1) is VertLine:
@@ -263,10 +325,8 @@ def findIntPoint(line1,line2): #takes two InfLines and finds the intersection
 
 
 
-#sometimes with 2 big circles and some small ones, it breaks
-#example is [50,1850,1950]
-#bandaid fix for now is to try except into just doing convPoly of the first two circles
-def convPoly(circleList):
+'''
+def OLD_convPoly(circleList):
     #separate logic for 1, 2, and 3+ circles
     if len(circleList) == 1: #throws an error, should be handled by maxClusterArea
         raise Exception("Can't make polygon from one circle, should have been handled by maxClusterArea")
@@ -350,17 +410,73 @@ def convPoly(circleList):
 
         except: #sometimes breaks as described above, just does the correct alg with the first two circles in the list
             return convPoly(circleList[:2])
+'''
+
+def convPoly(circleList):
+    relevantCircles = getOuterCircles(circleList)
+    if len(relevantCircles) == 1:
+        circ = circleList[0]
+        x, y, r = circ.center.x, circ.center.y, circ.radius
+
+        return Polygon([
+            Point(x-r, y-r),
+            Point(x-r, y+r),
+            Point(x+r, y+r),
+            Point(x+r, y-r)
+        ])
+    
+    if len(relevantCircles) == 2: #defines a trapezoid type thing
+        sortedCircs = sorted(circleList, key = lambda x: x.tupCenter())
+        c1 = sortedCircs[0]
+        c2 = sortedCircs[1]
+        tan1, tan3 = extTangents(c1,c2)
+
+        slope = (c2.center.y - c1.center.y)/(c2.center.x-c1.center.x)
+        perpSlope = -1/slope
+
+        angle1 =  math.atan(slope)
+        angle2 = angle1 + math.pi
+
+        newx1 = c1.radius * math.cos(angle2) + c1.center.x
+        newy1 = c1.radius * math.sin(angle2) + c1.center.y
+
+        newx2 = c2.radius * math.cos(angle1) + c2.center.x
+        newy2 = c2.radius * math.sin(angle1) + c2.center.y
+
+        tan2 = InfLine(perpSlope, newy1 - perpSlope*newx1)
+        tan4 = InfLine(perpSlope, newy2 - perpSlope*newx2)
+
+        tans = [tan1,tan2,tan3,tan4]
+
+        intPoints = []
+        for index in range(len(tans)):
+            tN = tans[index]
+            tNp1 = tans[(index+1)%len(tans)]
+            intPoints.append(findIntPoint(tN, tNp1))
+        resultConvPoly = Polygon(intPoints + [intPoints[0]])
+
+        return resultConvPoly
+
+    else:
+        tangentTuples = allValidTangents(relevantCircles)
+        exteriorTangents = [t[0] for t in tangentTuples]
+        
+        intPoints = []
+        for index in range(len(exteriorTangents)):
+            tN = exteriorTangents[index]
+            tNp1 = exteriorTangents[(index+1)%len(exteriorTangents)]
+
+            intPoints.append(findIntPoint(tN, tNp1))
+
+        resultConvPoly = Polygon(intPoints + [intPoints[0]])
+
+        return resultConvPoly
+
+def test_convPoly():
+    pass
 
 
 
-# checkPolygon :: [Circle] -> shapely Polygon -> Bool
-#checks if all the circles are inside the polygon, and the area of the polygon is bigger than the sum of all the circles' area
-def checkPolygon(circleList, polygon):
-    cond1 = polygon.covers(centerHull(circleList))
-
-    cond2 = polygon.area > sum(map(lambda c: c.getArea(), circleList))
-
-    return cond1 & cond2
 
 
 if __name__ == '__main__':

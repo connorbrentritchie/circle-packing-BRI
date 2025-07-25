@@ -18,18 +18,11 @@ def main():
     rads3 = [3,6,19,15,6,10,11,11]
     rads4 = [500,1850,2950,900]
 
-    print(maxClusterArea(rads1), maxClusterArea(rads2), maxClusterArea(rads3), maxClusterArea(rads4))
-
-    #rows 6662 and 6663
-    circ1 = newCircle(179860, 9787669, 1000)
-    circ2 = newCircle(179336, 9789180, 15)
-    cList = [circ1, circ2]
-
-    print(actualClusterArea(cList))
+    circs = radSumAlg(rads4)
 
     setup()
-    drawCircles(cList)
-    drawPolygon(convPoly(cList))
+    drawCircles(circs)
+    drawPolygon(convPoly(circs))
     pshow()
 
 def maxClusterArea(radii):
