@@ -413,6 +413,9 @@ def OLD_convPoly(circleList):
 '''
 
 def convPoly(circleList):
+    #edge cases
+
+    
     relevantCircles = getOuterCircles(circleList)
     if len(relevantCircles) == 1:
         circ = circleList[0]
@@ -435,7 +438,7 @@ def convPoly(circleList):
         perpSlope = -1/slope
 
         angle1 =  math.atan(slope)
-        angle2 = angle1 + math.pi
+        angle2 = angle1 + math.pi 
 
         newx1 = c1.radius * math.cos(angle2) + c1.center.x
         newy1 = c1.radius * math.sin(angle2) + c1.center.y
@@ -472,8 +475,37 @@ def convPoly(circleList):
 
         return resultConvPoly
 
+def convPolyFailsafe(circleList):
+    cHull = centerHull(circleList)
+
+    centroid = cHull.centroid
+
+    failsafeVertices = []
+    centerList = [c.center for c in circleList] #centers of circleList in same order as the circles
+    for vertex in cHull.exterior.coords:
+        radius = circleList[centerList.index(Point(vertex))].radius
+
+        dx = vertex[0] - centroid.x
+        dy = vertex[1] - centroid.y
+        scale = radius / math.sqrt(dx**2 + dy**2)
+
+        x_trans = scale * dx
+        y_trans = scale * dy
+
+        failsafeVertices.append(Point(vertex[0] + x_trans, vertex[1] + y_trans))
+    
+    return Polygon(failsafeVertices)
+
+    
+    
+
+
+
 def test_convPoly():
-    pass
+    setup()
+    drawCircles(testList)
+    drawPolygon(convPoly(testList))
+    pshow()
 
 
 
