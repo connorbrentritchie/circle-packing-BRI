@@ -1,7 +1,7 @@
 from geoThings import Circle, randomList, newCircle
 from packingAlgs import radSumAlg, polyAreaAlg, randomAlg
-from convPolyFuncs import convPoly
-from drawFuncsV2 import setup, pshow, pdraw, drawCircles, drawPolygon
+from convPolyFuncs import convPoly, allValidTangents
+from drawFuncsV2 import setup, pshow, pdraw, drawCircles, drawPolygon, drawLines
 
 from shapely import Polygon
 from math import pi
@@ -19,10 +19,11 @@ def main():
     rads4 = [500,1850,2950,900]
 
     circs = radSumAlg(rads4)
+    tans = allValidTangents(circs, testDraw=True)
 
     setup()
     drawCircles(circs)
-    drawPolygon(convPoly(circs))
+    drawLines(tans)
     pshow()
 
 def maxClusterArea(radii):

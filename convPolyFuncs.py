@@ -17,7 +17,7 @@ The main function is convPoly, which takes in a list of Circles, and returns the
 
 
 def main():
-    test_convPoly()
+    pass
 
 def circLabel(circ, circleList): #finds the label of a circle on the drawing
     return circleList.index(circ)+1
@@ -324,98 +324,9 @@ def findIntPoint(line1,line2): #takes two InfLines and finds the intersection
     return result
 
 
-
-'''
-def OLD_convPoly(circleList):
-    #separate logic for 1, 2, and 3+ circles
-    if len(circleList) == 1: #throws an error, should be handled by maxClusterArea
-        raise Exception("Can't make polygon from one circle, should have been handled by maxClusterArea")
-
-    if len(circleList) == 2: #defines a trapezoid type thing
-        sortedCircs = sorted(circleList, key = lambda x: x.tupCenter())
-        c1 = sortedCircs[0]
-        c2 = sortedCircs[1]
-        tan1, tan3 = extTangents(c1,c2)
-
-        centerSeg = LineString([c1.tupCenter(), c2.tupCenter()])
-        slope = (c2.center.y - c1.center.y)/(c2.center.x-c1.center.x)
-        perpSlope = -1/slope
-
-        angle1 =  math.atan(slope)
-        angle2 = angle1 + math.pi
-
-        newx1 = c1.radius * math.cos(angle2) + c1.center.x
-        newy1 = c1.radius * math.sin(angle2) + c1.center.y
-
-        newx2 = c2.radius * math.cos(angle1) + c2.center.x
-        newy2 = c2.radius * math.sin(angle1) + c2.center.y
-
-        tan2 = InfLine(perpSlope, newy1 - perpSlope*newx1)
-        tan4 = InfLine(perpSlope, newy2 - perpSlope*newx2)
-
-        tans = [tan1,tan2,tan3,tan4]
-
-        intPoints = []
-        for index in range(len(tans)):
-            tN = tans[index]
-            tNp1 = tans[(index+1)%len(tans)]
-            intPoints.append(findIntPoint(tN, tNp1))
-        resultConvPoly = Polygon(intPoints + [intPoints[0]])
-
-        return resultConvPoly
-
-    else:
-        try:
-            #default algorithm
-            tangentTuples = allValidTangents(circleList)
-            exteriorTangents = [t[0] for t in tangentTuples]
-            
-            intPoints = []
-            for index in range(len(exteriorTangents)):
-                tN = exteriorTangents[index]
-                tNp1 = exteriorTangents[(index+1)%len(exteriorTangents)]
-
-                intPoints.append(findIntPoint(tN, tNp1))
-
-            resultConvPoly = Polygon(intPoints + [intPoints[0]])
-            
-            #checks to see if the polygon is actually valid. If not, takes first and last tangent and adds a tangent to the first circle and redoes finding the intersection points to hopefully complete the polygon.
-            if not checkPolygon(circleList, resultConvPoly):
-                #adds a horizontal line on the starting Circle
-                startCirc = largestOuterCirc(circleList)
-                newTangent1 = InfLine(0.0, startCirc.center.y - startCirc.radius)
-                newTangent2 = InfLine(0.0, startCirc.center.y + startCirc.radius)
-                bounds = configBounds(circleList)
-
-                newTanSeg1, newTanSeg2 = lineToSegment(newTangent1, bounds), lineToSegment(newTangent2, bounds)
-
-                if isValidTangent(newTanSeg1, circleList):
-                    exteriorTangents.append(newTangent1)
-                elif isValidTangent(newTanSeg2, circleList):
-                    exteriorTangents.append(newTangent2)
-                else:
-                    raise Exception("Adding horizontal tangent failed (from checkPolygon fail)\n", "radii:", list(map(lambda c: c.radius, circleList)))
-
-                #redoes finding the intersection points with the new horizontal tangent
-                intPoints = []
-                for index in range(len(exteriorTangents)):
-                    tN = exteriorTangents[index]
-                    tNp1 = exteriorTangents[(index+1)%len(exteriorTangents)]
-
-                    intPoints.append(findIntPoint(tN, tNp1))
-
-                resultConvPoly = Polygon(intPoints + [intPoints[0]])
-            
-            return resultConvPoly
-
-        except: #sometimes breaks as described above, just does the correct alg with the first two circles in the list
-            return convPoly(circleList[:2])
-'''
-
 def convPoly(circleList):
     #edge cases
 
-    
     relevantCircles = getOuterCircles(circleList)
     if len(relevantCircles) == 1:
         circ = circleList[0]
@@ -476,36 +387,8 @@ def convPoly(circleList):
         return resultConvPoly
 
 def convPolyFailsafe(circleList):
-    cHull = centerHull(circleList)
+    return centerHull(circleList)
 
-    centroid = cHull.centroid
-
-    failsafeVertices = []
-    centerList = [c.center for c in circleList] #centers of circleList in same order as the circles
-    for vertex in cHull.exterior.coords:
-        radius = circleList[centerList.index(Point(vertex))].radius
-
-        dx = vertex[0] - centroid.x
-        dy = vertex[1] - centroid.y
-        scale = radius / math.sqrt(dx**2 + dy**2)
-
-        x_trans = scale * dx
-        y_trans = scale * dy
-
-        failsafeVertices.append(Point(vertex[0] + x_trans, vertex[1] + y_trans))
-    
-    return Polygon(failsafeVertices)
-
-    
-    
-
-
-
-def test_convPoly():
-    setup()
-    drawCircles(testList)
-    drawPolygon(convPoly(testList))
-    pshow()
 
 
 
