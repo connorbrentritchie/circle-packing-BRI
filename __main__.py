@@ -9,7 +9,7 @@ from geoThings import newCircle
 
 from pathlib import Path
 
-source_folder = r"C:\Users\conno\Documents\Work\Excel Files\KRCP Livestockdata (2024 only).xlsx"
+source_folder = r"C:\Users\conno\Documents\Work\circle-packing-BRI\Excel-Files\KRCP Livestockdata (2024 only).xlsx"
 krcp = pd.read_excel(source_folder)
 
 #takes in full community name ("eselenkei_group_ranch"), outputs 3-letter abbreviation ("ESL")
@@ -172,6 +172,6 @@ def compute_footprint_area():
     krcp["Footprint Area"] = pd.concat(results)
     krcp.drop(columns = ["Biweek"])
 
-    krcp.to_csv(r"C:\Users\conno\Documents\Work\Excel Files\Results.csv")
+    krcp.to_csv(r"C:\Users\conno\Documents\Work\circle-packing-BRI\Excel-Files\Results.csv")
 
 compute_footprint_area()
