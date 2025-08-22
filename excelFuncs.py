@@ -91,7 +91,6 @@ def getAreasOfActualClusters():
                 group["actual_area"] = actualClusterArea(circleList)
                 print("finished area")
             except:
-                print("shit")
                 group["actual_area"] = 0
             results.append(group["actual_area"])
 

@@ -16,19 +16,6 @@ The main two are radSumAlg and polyAreaAlg.
 '''
 
 
-
-def main():
-    #50 1850 2950
-    radii = [50,1850,2950]
-    testc = radSumAlg(radii)
-    testd = convPoly(testc)
-
-
-    setup()
-    drawCircles(testc)
-    drawPolygon(testd)
-    pshow()
-
 def isOverlap(c1: Circle, c2: Circle): #checks to see if two circles overlap
     radSum = c1.radius + c2.radius
     centerDist = c1.center.distance(c2.center)
@@ -428,7 +415,3 @@ def radSumAlgPresentation(radii, speed): #draws each step of the alg
         removeCircles(maxc_p)
 
     return maxc
-
-
-if __name__ == '__main__':
-    main()

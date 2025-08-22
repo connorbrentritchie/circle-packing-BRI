@@ -4,7 +4,7 @@ from drawFuncsV2 import setup, pshow, pdraw, drawCircles, drawPoints, drawLines,
 import math
 import random
 import shapely as sh
-from shapely import Point, LineString, Polygon
+from shapely import Point, LineString, Polygon, contains
 
 '''
 this file contains all the functions pertaining to drawing convex polygons around sets of circles. 
@@ -325,10 +325,7 @@ def findIntPoint(line1,line2): #takes two InfLines and finds the intersection
 
 
 def convPoly(circleList):
-    #edge cases
-
-    relevantCircles = getOuterCircles(circleList)
-    if len(relevantCircles) == 1:
+    if centerHull(circleList).geom_type != 'Polygon':
         circ = circleList[0]
         x, y, r = circ.center.x, circ.center.y, circ.radius
 
@@ -338,56 +335,71 @@ def convPoly(circleList):
             Point(x+r, y+r),
             Point(x+r, y-r)
         ])
-    
-    if len(relevantCircles) == 2: #defines a trapezoid type thing
-        sortedCircs = sorted(circleList, key = lambda x: x.tupCenter())
-        c1 = sortedCircs[0]
-        c2 = sortedCircs[1]
-        tan1, tan3 = extTangents(c1,c2)
 
-        slope = (c2.center.y - c1.center.y)/(c2.center.x-c1.center.x)
-        perpSlope = -1/slope
+    try:
+        relevantCircles = getOuterCircles(circleList)
+        if len(relevantCircles) == 1:
+            circ = circleList[0]
+            x, y, r = circ.center.x, circ.center.y, circ.radius
 
-        angle1 =  math.atan(slope)
-        angle2 = angle1 + math.pi 
-
-        newx1 = c1.radius * math.cos(angle2) + c1.center.x
-        newy1 = c1.radius * math.sin(angle2) + c1.center.y
-
-        newx2 = c2.radius * math.cos(angle1) + c2.center.x
-        newy2 = c2.radius * math.sin(angle1) + c2.center.y
-
-        tan2 = InfLine(perpSlope, newy1 - perpSlope*newx1)
-        tan4 = InfLine(perpSlope, newy2 - perpSlope*newx2)
-
-        tans = [tan1,tan2,tan3,tan4]
-
-        intPoints = []
-        for index in range(len(tans)):
-            tN = tans[index]
-            tNp1 = tans[(index+1)%len(tans)]
-            intPoints.append(findIntPoint(tN, tNp1))
-        resultConvPoly = Polygon(intPoints + [intPoints[0]])
-
-        return resultConvPoly
-
-    else:
-        tangentTuples = allValidTangents(relevantCircles)
-        exteriorTangents = [t[0] for t in tangentTuples]
+            return Polygon([
+                Point(x-r, y-r),
+                Point(x-r, y+r),
+                Point(x+r, y+r),
+                Point(x+r, y-r)
+            ])
         
-        intPoints = []
-        for index in range(len(exteriorTangents)):
-            tN = exteriorTangents[index]
-            tNp1 = exteriorTangents[(index+1)%len(exteriorTangents)]
+        if len(relevantCircles) == 2: #defines a trapezoid type thing
+            sortedCircs = sorted(circleList, key = lambda x: x.tupCenter())
+            c1 = sortedCircs[0]
+            c2 = sortedCircs[1]
+            tan1, tan3 = extTangents(c1,c2)
 
-            intPoints.append(findIntPoint(tN, tNp1))
+            slope = (c2.center.y - c1.center.y)/(c2.center.x-c1.center.x)
+            perpSlope = -1/slope
 
-        resultConvPoly = Polygon(intPoints + [intPoints[0]])
+            angle1 =  math.atan(slope)
+            angle2 = angle1 + math.pi 
 
-        return resultConvPoly
+            newx1 = c1.radius * math.cos(angle2) + c1.center.x
+            newy1 = c1.radius * math.sin(angle2) + c1.center.y
 
-def convPolyFailsafe(circleList):
-    return centerHull(circleList)
+            newx2 = c2.radius * math.cos(angle1) + c2.center.x
+            newy2 = c2.radius * math.sin(angle1) + c2.center.y
+
+            tan2 = InfLine(perpSlope, newy1 - perpSlope*newx1)
+            tan4 = InfLine(perpSlope, newy2 - perpSlope*newx2)
+
+            tans = [tan1,tan2,tan3,tan4]
+
+            intPoints = []
+            for index in range(len(tans)):
+                tN = tans[index]
+                tNp1 = tans[(index+1)%len(tans)]
+                intPoints.append(findIntPoint(tN, tNp1))
+            resultConvPoly = Polygon(intPoints + [intPoints[0]])
+
+            return resultConvPoly
+
+        else:
+            tangentTuples = allValidTangents(relevantCircles)
+            exteriorTangents = [t[0] for t in tangentTuples]
+            
+            intPoints = []
+            for index in range(len(exteriorTangents)):
+                tN = exteriorTangents[index]
+                tNp1 = exteriorTangents[(index+1)%len(exteriorTangents)]
+
+                intPoints.append(findIntPoint(tN, tNp1))
+
+            resultConvPoly = Polygon(intPoints + [intPoints[0]])
+
+            if not all([contains(resultConvPoly, c.center) for c in circleList]):
+                return centerHull(circleList)
+
+            return resultConvPoly
+    except:
+        return centerHull(circleList)
 
 
 

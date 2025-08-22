@@ -21,7 +21,6 @@ openpath = "D:\\Work\\Excel Files\\KRCPLivestockdata Locations UTM Fixed Radii.x
 kmzfolderpath = "D:\\Work\\QGIS Stuff\\KRCP kmzs"
 
 kmlsavepath = "D:\\Work\\QGIS Stuff\\TestStuff\\"
-housecoords = (42.068611, -111.786667)
 
 
 
