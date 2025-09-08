@@ -8,9 +8,16 @@ from convPolyFuncs import convPoly, centerHull
 from geoThings import newCircle
 
 from pathlib import Path
+import sys
 
-source_folder = r"C:\Users\conno\Documents\Work\circle-packing-BRI\Excel-Files\KRCP Livestockdata (2024 only).xlsx"
-krcp = pd.read_excel(source_folder)
+data_filename = sys.argv[1]
+print(Path.cwd().joinpath("Excel-Files").joinpath(data_filename))
+if Path.cwd().joinpath("Excel-Files").joinpath(data_filename).exists():
+    source_folder = Path.cwd().joinpath("Excel-Files").joinpath(data_filename)
+else:
+    raise NameError(f"File with name {data_filename} could not be found in Excel-Files folder")
+
+krcp = pd.read_excel(source_folder.as_uri()[8:])
 
 #takes in full community name ("eselenkei_group_ranch"), outputs 3-letter abbreviation ("ESL")
 def comm_to_abbr(comm):
@@ -72,7 +79,7 @@ def date_to_biweek(date):
 
 
 def gen_kmzs():
-    save_folder = Path.cwd().parent
+    save_folder = Path.cwd().joinpath("Excel-Files")
     if not save_folder.joinpath("Footprint-kmzs").exists():
         Path.mkdir(save_folder.joinpath("Footprint-kmzs"))
     footprints_save_folder = save_folder.joinpath("Footprint-kmzs")
@@ -140,13 +147,15 @@ def gen_kmzs():
                 except:
                     continue
         
+        #the [8:] is there since the .as_uri() method starts the paths with "file:///:" for some reason
         locations_kml.savekmz(locations_save_folder.joinpath(name + "-Locations.kmz").as_uri()[8:])
         footprints_kml.savekmz(footprints_save_folder.joinpath(name + "-Footprints.kmz").as_uri()[8:])
 
 gen_kmzs()
+print("finished kmzs")
 
 def compute_footprint_area():
-    save_folder = Path(source_folder).parent
+    save_folder = Path.cwd().joinpath("Excel-Files")
     krcp["Biweek"] = krcp["Date"].apply(date_to_biweek)
 
     results = []
@@ -170,8 +179,8 @@ def compute_footprint_area():
         results.append(group["Footprint Area"])
 
     krcp["Footprint Area"] = pd.concat(results)
-    krcp.drop(columns = ["Biweek"])
+    krcp.drop(columns = ["Biweek"], inplace = True)
 
-    krcp.to_csv(r"C:\Users\conno\Documents\Work\circle-packing-BRI\Excel-Files\Results.csv")
+    krcp.to_csv(save_folder.joinpath("Results.csv").as_uri()[8:])
 
 compute_footprint_area()
