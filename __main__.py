@@ -14,6 +14,7 @@ data_filename = sys.argv[1]
 print(Path.cwd().joinpath("Excel-Files").joinpath(data_filename))
 if Path.cwd().joinpath("Excel-Files").joinpath(data_filename).exists():
     source_folder = Path.cwd().joinpath("Excel-Files").joinpath(data_filename)
+    print(source_folder.as_uri())
 else:
     raise NameError(f"File with name {data_filename} could not be found in Excel-Files folder")
 
@@ -38,6 +39,14 @@ def comm_to_abbr(comm):
             return "SHO"
         case "oldonyo_nyokie":
             return "OLN"
+        case "nasaru_olasho":
+            return "NAO"
+        case "aloca":
+            return "ALC"
+        case "ramat_east":
+            return "RME"
+        case "ramat_west":
+            return "RMW"
         case otherThing:
             print(otherThing)
             raise NameError("FAIL: unrecognized comm")

@@ -65,6 +65,12 @@ def printCircleData(circList, doTerm = True):
             print('\tCenter:', circ.tupCenter(), file=testing)
             print('\tRadius:', circ.radius, file=testing)
 
-if __name__ == '__main__':
-    print("hi command line :D")
 
+def main():
+    print("hello", 4)
+    p = Point(1,2)
+    print(p.x, p.y)
+
+
+if __name__ == '__main__':
+    main()
